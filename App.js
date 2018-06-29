@@ -214,16 +214,35 @@ export default class App extends React.Component {
     this.setState({current: "0", dotInputed: false, afterValueButton: false})
   }
 
+  showValue = (index) => {
+    // 1: 文字が入力中だった場合に表示対象を一つずらす
+    if (this.state.afterValueButton || this.state.results.length == 0) {
+      index = index - 1
+    }
+    // 2: indexが -1 になったら入力中なので current を表示する
+    if (index == -1) {
+      return this.state.current
+    }
+    // 3: スタックで表示できるものを優先して表示する
+    if (this.state.results.length > index) {
+      return this.state.results[this.state.results.length - 1 - index]
+    }
+    return ""
+  }
 
   render() {
     return (
       <View style={styles.container}>
         <View style={styles.results}>
+          { /* 4: スタックもしくはcurrentを最大3つまで表示 */ }
           <View style={styles.resultLine}>
+            <Text>{this.showValue(2)}</Text>
           </View>
           <View style={styles.resultLine}>
+            <Text>{this.showValue(1)}</Text>
           </View>
           <View style={styles.resultLine}>
+            <Text>{this.showValue(0)}</Text>
           </View>
         </View>
         <View style={styles.buttons}>
@@ -270,6 +289,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     justifyContent: 'center',
     alignItems: 'flex-end',
+    paddingRight: 20, // 5: 右端から少し離す
   },
   buttons: {
     flex: 5,
