@@ -12,7 +12,6 @@ export default class App extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        { /* 1: 結果を表示するView */ }
         <View style={styles.results}>
           <View style={styles.resultLine}>
           </View>
@@ -21,7 +20,6 @@ export default class App extends React.Component {
           <View style={styles.resultLine}>
           </View>
         </View>
-        { /* 2: ボタンを配置するView */ }
         <View style={styles.buttons}>
           <View style={styles.buttonsLine}>
           </View>
@@ -51,7 +49,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingTop: STATUSBAR_HEIGHT,
   },
-  // 3: 結果を表示する領域と、一つずつの行のスタイル
   results: {
     flex: 3,
     backgroundColor: '#fff',
@@ -62,7 +59,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
-  // 4: ボタンを表示する領域と、ボタンの行のスタイル
   buttons: {
     flex: 5,
   },
@@ -74,7 +70,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
   },
-  // 5: 最後の二行は組み方が違うので違うスタイルを設定する
   lastButtonLinesContainer: {
     flex: 2,
     flexDirection: 'row',
