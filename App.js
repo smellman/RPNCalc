@@ -9,7 +9,6 @@ import {
 
 const STATUSBAR_HEIGHT = Platform.OS == 'ios' ? 20 : StatusBar.currentHeight;
 
-// 1: ボタンのFunctional Component
 const CalcButton = (props) => {
   const flex = props.flex ? props.flex : 1
   return (
@@ -21,9 +20,45 @@ const CalcButton = (props) => {
   )
 }
 
+// 1: ボタンのFragmentを返すFunctional Component
+const CalcButtons = (props) => {
+  return (
+    <React.Fragment>
+      { props.buttons.map(button => {
+        return (
+          <CalcButton
+            key={button.label}
+            flex={button.flex}
+            label={button.label}
+            btnEvent={button.btnEvent}
+          />
+        )
+      })}
+    </React.Fragment>
+  )
+}
+
 export default class App extends React.Component {
 
-  // 2: ボタンの役割ごとに関数を作成
+  // 2: ボタンの定義
+  buttons = [
+    [
+      {
+        label: 'AC',
+        flex: 2,
+        btnEvent: () => {this.acButton()},
+      },
+      {
+        label: 'C',
+        btnEvent: () => {this.cButton()},
+      },
+      {
+        label: '+',
+        btnEvent: () => {this.calcButton('+')},
+      }
+    ],
+  ]
+
   valueButton = (value) => {
   }
 
@@ -52,10 +87,8 @@ export default class App extends React.Component {
         </View>
         <View style={styles.buttons}>
           <View style={styles.buttonsLine}>
-            { /* 3: ボタンを配置 */ }
-            <CalcButton flex={2} label={'AC'} btnEvent={() => this.acButton()} />
-            <CalcButton label={'C'} btnEvent={() => this.cButton()} />
-            <CalcButton label={'+'} btnEvent={() => this.calcButton('+')} />
+            { /* 3: CalcButtons を利用 */ }
+            <CalcButtons buttons={this.buttons[0]} />
           </View>
           <View style={styles.buttonsLine}>
           </View>
@@ -116,7 +149,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
   },
-  //
   calcButton: {
     alignItems: 'center',
     justifyContent: 'center',
