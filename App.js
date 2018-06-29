@@ -39,7 +39,6 @@ const CalcButtons = (props) => {
 
 export default class App extends React.Component {
 
-  // 1: ボタンの定義
   buttons = [
     [
       {
@@ -128,20 +127,103 @@ export default class App extends React.Component {
     ]
   ]
 
+  constructor(props) {
+    super(props)
+    this.state = {
+      results: [], // 1: スタックが入る配列
+      current: "0", // 2: 現在入力中の値の文字列
+      dotInputed: false, // 3: . が入力されているかどうか
+      afterValueButton: false, // 4: 数字ボタンが入力された後かどうか
+    }
+  }
+
   valueButton = (value) => {
+    let currentString = this.state.current
+    const dotInputed = this.state.dotInputed
+    let newDotInputed = dotInputed
+    if (value == ".") {
+      // 5: . は二回入力されたら無視する
+      if (!dotInputed) {
+        currentString = currentString + value
+        newDotInputed = true
+      }
+    } else if (currentString == "0") { // 6: 初期入力時は値をそのまま保持する
+      currentString = value
+    } else {
+      currentString = currentString + value
+    }
+    this.setState({current: currentString, dotInputed: newDotInputed, afterValueButton: true})
   }
 
   enterButton = () => {
+    let newValue = NaN
+    if (this.state.dotInputed) {
+      newValue = parseFloat(this.state.current)
+    } else {
+      newValue = parseInt(this.state.current)
+    }
+    // 7: parseに失敗したらスタックに積まない
+    if (isNaN(newValue)) {
+      return
+    }
+    // 8: スタックに新しい値を積む
+    let results = this.state.results
+    results.push(newValue)
+    this.setState({current: "0", dotInputed: false, results: results, afterValueButton: false})
   }
 
   calcButton = (value) => {
+    // 9: スタックが２つ以上無い場合は計算しない
+    if (this.state.results.length < 2) {
+      return
+    }
+    // 10: 数値を入力中は受け付けない(スタックにあるものだけを処理する)
+    if (this.state.afterValueButton == true) {
+      return
+    }
+    let newResults = this.state.results
+    const target2 = newResults.pop()
+    const target1 = newResults.pop()
+    newValue = null
+    // 11: スタックから取得したものを計算する
+    switch (value) {
+      case '+':
+        newValue = target1 + target2
+        break
+      case '-':
+        newValue = target1 - target2
+        break
+      case '*':
+        newValue = target1 * target2
+        break
+      case '/':
+        newValue = target1 / target2
+        // 12: 0で割ったときに何もしないよう有限性をチェック
+        if (!isFinite(newValue)) {
+          newValue = null
+        }
+        break
+      default:
+        break
+    }
+    if (newValue == null) {
+      return
+    }
+    // 13: 計算結果をスタックに積む
+    newResults.push(newValue)
+    this.setState({current: "0", dotInputed: false, results: newResults, afterValueButton: false})
   }
 
   acButton = () => {
+    // 14: ACボタンはスタックを含めて初期化する
+    this.setState({current: "0", dotInputed: false, results: [], afterValueButton: false})
   }
 
   cButton = () => {
+    // 15: Cボタンはスタック以外を初期化する
+    this.setState({current: "0", dotInputed: false, afterValueButton: false})
   }
+
 
   render() {
     return (
@@ -150,12 +232,15 @@ export default class App extends React.Component {
           <View style={styles.resultLine}>
           </View>
           <View style={styles.resultLine}>
+            { /* 16: デバッグ表示: current の値を表示 */ }
+            <Text>{this.state.current}</Text>
           </View>
           <View style={styles.resultLine}>
+            { /* 17: デバッグ表示: スタックの中身を表示 */ }
+            <Text>{this.state.results.join(' ')}</Text>
           </View>
         </View>
         <View style={styles.buttons}>
-          { /* 2: CalcButtons でぞれぞれのViewに配置をしていく */ }
           <View style={styles.buttonsLine}>
             <CalcButtons buttons={this.buttons[0]} />
           </View>
