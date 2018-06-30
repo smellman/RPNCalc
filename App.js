@@ -5,6 +5,7 @@ import {
   View,
   Platform,
   TouchableOpacity,
+  Dimensions, // 1: 画面の大きさを扱うDimensionsを追加
 } from 'react-native';
 
 const STATUSBAR_HEIGHT = Platform.OS == 'ios' ? 20 : StatusBar.currentHeight;
@@ -129,12 +130,39 @@ export default class App extends React.Component {
 
   constructor(props) {
     super(props)
+    // 2: 初期起動時の縦の大きさと横の大きさを取得
+    const {height, width} = Dimensions.get('window')
     this.state = {
       results: [],
       current: "0",
       dotInputed: false,
       afterValueButton: false,
+      orientation: this.getOrientation(height, width), // 3: 向きを保持
     }
+  }
+
+  // 4: 画面の向きを取得する関数
+  getOrientation = (height, width) => {
+    if (height > width) {
+      return 'portrait'
+    }
+    return 'landscape'
+  }
+
+  // 5: 画面の大きさが変わったのイベント処理
+  changeOrientation = ({window}) => {
+    const orientation = this.getOrientation(window.height, window.width)
+    this.setState({orientation: orientation})
+  }
+
+  componentDidMount() {
+    // 6: 画面の変更されたときに発生するイベントを登録
+    Dimensions.addEventListener('change', this.changeOrientation)
+  }
+
+  componentWillUnmount() {
+    // 7: 画面の変更されたときに発生するイベントを解除
+    Dimensions.removeEventListener('change', this.changeOrientation)
   }
 
   valueButton = (value) => {
@@ -215,15 +243,12 @@ export default class App extends React.Component {
   }
 
   showValue = (index) => {
-    // 1: 文字が入力中だった場合に表示対象を一つずらす
     if (this.state.afterValueButton || this.state.results.length == 0) {
       index = index - 1
     }
-    // 2: indexが -1 になったら入力中なので current を表示する
     if (index == -1) {
       return this.state.current
     }
-    // 3: スタックで表示できるものを優先して表示する
     if (this.state.results.length > index) {
       return this.state.results[this.state.results.length - 1 - index]
     }
@@ -231,10 +256,15 @@ export default class App extends React.Component {
   }
 
   render() {
+    // 8: 縦向きと縦向きでflexの値を変更
+    let resultFlex = 3
+    if (this.state.orientation == 'landscape') {
+      resultFlex = 1
+    }
     return (
       <View style={styles.container}>
-        <View style={styles.results}>
-          { /* 4: スタックもしくはcurrentを最大3つまで表示 */ }
+        { /* 9: flex の値をマージする */ }
+        <View style={[styles.results, {flex: resultFlex}]}>
           <View style={styles.resultLine}>
             <Text>{this.showValue(2)}</Text>
           </View>
@@ -289,7 +319,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     justifyContent: 'center',
     alignItems: 'flex-end',
-    paddingRight: 20, // 5: 右端から少し離す
+    paddingRight: 20,
   },
   buttons: {
     flex: 5,
