@@ -6,6 +6,7 @@ import {
   Platform,
   TouchableOpacity,
   Dimensions,
+  StatusBar,
 } from 'react-native';
 
 const STATUSBAR_HEIGHT = Platform.OS == 'ios' ? 20 : StatusBar.currentHeight;
